@@ -2,19 +2,9 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/wiyata
+    url: jdbc:postgresql://localhost:5432/bulletin
     username: postgres
     password: NOVIANTO
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: mnoviantoanggoro@gmail.com
-    password: uqpgdvpkxigesyqq
-    link: http://localhost:8080/email/verify
-    properties.mail.smtp:
-      auth: true
-      starttls.enable: true
-      starttls.required: true
   data:
     web:
       pageable:
@@ -41,6 +31,22 @@ spring:
         access-expiration-time: 3600000
         refresh-expiration-time: 86400000
         secret: c8d7c086fe64a415ee1fafe90b1a663ef635f903b129d2bd752af401c817bee0
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: <YOUR_GOOGLE_CLIENT_ID>
+            client-secret: <YOUR_GOOGLE_CLIENT_SECRET>
+            scope: profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+            user-name-attribute: sub
 
 logging:
   level:
