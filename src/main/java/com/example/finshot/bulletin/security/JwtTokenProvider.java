@@ -1,4 +1,4 @@
-package com.example.finshot.bulletin.security.jwt;
+package com.example.finshot.bulletin.security;
 
 import com.example.finshot.bulletin.constant.ErrorCode;
 import com.example.finshot.bulletin.exception.InvalidException;

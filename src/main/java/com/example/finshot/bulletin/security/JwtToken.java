@@ -1,4 +1,4 @@
-package com.example.finshot.bulletin.security.jwt;
+package com.example.finshot.bulletin.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

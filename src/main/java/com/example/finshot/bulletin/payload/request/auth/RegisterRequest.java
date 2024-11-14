@@ -20,7 +20,7 @@ public class RegisterRequest {
 
     @NotBlank(message = "Kata sandi wajib diisi.")
     @Size(min = 8, max = 20, message = "Kata sandi harus terdiri dari minimal 8 dan maksimal 20 karakter.")
-    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Kata sandi harus menggunakan huruf besar, huruf kecil, angka, dan karakter khusus.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).+$", message = "Kata sandi harus menggunakan huruf besar, huruf kecil, angka, dan karakter khusus.")
     private String password;
 
     @NotBlank(message = "Nama panggilan wajib diisi.")
