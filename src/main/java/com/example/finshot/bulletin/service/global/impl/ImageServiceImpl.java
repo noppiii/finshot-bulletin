@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -25,30 +27,37 @@ public class ImageServiceImpl implements ImageService {
     private String profileImgStoreDirectory;
 
     @Override
-    public String upload(MultipartFile profileImg) {
+    public String uploadProfileUser(MultipartFile profileImg) {
         String ext = Optional.ofNullable(profileImg.getOriginalFilename())
                 .filter(f -> f.contains("."))
-                .map(f -> f.split("\\.")[1])
+                .map(f -> f.substring(f.lastIndexOf(".") + 1))
                 .orElse("");
 
         String fileName = "%s.%s".formatted(UUID.randomUUID(), ext);
         String formatDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd"));
-        String filePath = profileImgStoreDirectory + "/users/" + formatDate + "/" + fileName;
 
-        File directory = new File(profileImgStoreDirectory + "/users/" + formatDate);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+        String tempFilePath = System.getProperty("java.io.tmpdir") + "/" + fileName;
+        File tempFile = new File(tempFilePath);
 
         try {
-            File localFile = new File(filePath);
-            profileImg.transferTo(localFile);
-            log.debug("Image uploaded successfully to: {}", filePath);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store image", e);
-        }
+            profileImg.transferTo(tempFile);
+            log.debug("Temporary upload location: {}", tempFile.getAbsolutePath());
 
-        return filePath;
+            String targetDirPath = profileImgStoreDirectory + "/users/" + formatDate;
+            File targetDir = new File(targetDirPath);
+
+            if (!targetDir.exists() && !targetDir.mkdirs()) {
+                throw new RuntimeException("Failed to create directory: " + targetDir.getAbsolutePath());
+            }
+
+            File targetFile = new File(targetDir, fileName);
+            Files.copy(tempFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            tempFile.delete();
+            String relativePath = "users/" + formatDate + "/" + fileName;
+            return relativePath;
+        } catch (IOException e) {
+            throw new RuntimeException("Gagal store gambar", e);
+        }
     }
 
     @Override

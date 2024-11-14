@@ -1,4 +1,4 @@
-package com.example.finshot.bulletin.payload.response.global;
+package com.example.finshot.bulletin.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

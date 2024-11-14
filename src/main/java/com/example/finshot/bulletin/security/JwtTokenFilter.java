@@ -2,7 +2,7 @@ package com.example.finshot.bulletin.security;
 
 import com.example.finshot.bulletin.constant.ErrorCode;
 import com.example.finshot.bulletin.exception.CustomException;
-import com.example.finshot.bulletin.payload.response.global.ErrorResponse;
+import com.example.finshot.bulletin.payload.response.ErrorResponse;
 import com.example.finshot.bulletin.util.JwtTokenUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -73,7 +73,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String[] excludePath = {
                 "/auth/register", "/auth/login",
-                "/register", "/login"
+                "/auth/register/post", "/auth/login/post"
         };
 
         String path = request.getRequestURI();

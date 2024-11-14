@@ -1,7 +1,7 @@
 package com.example.finshot.bulletin.exception;
 
 import com.example.finshot.bulletin.constant.ErrorCode;
-import com.example.finshot.bulletin.payload.response.global.CustomErrorResponse;
+import com.example.finshot.bulletin.payload.response.CustomErrorResponse;
 import lombok.Getter;
 
 import java.util.HashMap;

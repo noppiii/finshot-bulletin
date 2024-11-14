@@ -1,4 +1,4 @@
-package com.example.finshot.bulletin.payload.response.global;
+package com.example.finshot.bulletin.payload.response;
 
 import lombok.Getter;
 import lombok.Setter;

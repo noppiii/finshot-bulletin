@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
-    <title>Register</title>
+    <title>Login</title>
 
     <link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.4/components/registrations/registration-7/assets/css/registration-7.css">
@@ -22,30 +22,20 @@
                                 <div class="mb-5">
                                     <div class="text-center mb-4">
                                         <a href="#!">
-                                            <img src="img/finshot.png" alt="BootstrapBrain Logo" width="175" height="57">
+<!--                                            <img src="img/finshot.png" alt="Logo" width="175" height="57">-->
                                         </a>
                                     </div>
-                                    <h2 class="h4 text-center">Registration</h2>
-                                    <h3 class="fs-6 fw-normal text-secondary text-center m-0">Masukan data diri untuk register</h3>
+                                    <h2 class="h4 text-center">Login</h2>
+                                    <h3 class="fs-6 fw-normal text-secondary text-center m-0">Silakan login dengan akun Anda</h3>
                                 </div>
                             </div>
                         </div>
-                        <form action="/auth/register/post" method="POST" th:object="${registerRequest}" enctype="multipart/form-data">
+
+                        <form action="/auth/login/post" method="POST" th:object="${loginRequest}" enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
                             <div class="col-12">
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" th:field="*{nickname}" id="nickname" placeholder="Nickname">
-                                    <label for="nickname" class="form-label">Nickname</label>
-                                    <div th:if="${#fields.hasErrors('nickname')}" class="text-danger">
-                                        <div th:each="error : ${#fields.errors('nickname')}">
-                                            * <span th:text="${error}"></span><br>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-floating mb-3">
-                                    <input type="email" class="form-control" th:field="*{email}" id="email" placeholder="name@example.com">
+                                    <input type="email" class="form-control" th:field="*{email}" id="email" placeholder="Email">
                                     <label for="email" class="form-label">Email</label>
                                     <div th:if="${#fields.hasErrors('email')}" class="text-danger">
                                         <div th:each="error : ${#fields.errors('email')}">
@@ -66,21 +56,20 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <div class="form-floating mb-3">
-                                    <input type="file" class="form-control" th:field="*{profileImg}" id="profileImg" accept="image/png, image/jpeg, image/jpg, image/gif">
-                                    <label for="profileImg" class="form-label">Profile Image</label>
-                                </div>
-                            </div>
-                            <div class="col-12">
                                 <div class="d-grid">
-                                    <button class="btn bsb-btn-xl btn-primary" type="submit">Sign up</button>
+                                    <button class="btn bsb-btn-xl btn-primary" type="submit">Login</button>
                                 </div>
                             </div>
                         </form>
+
+                        <div th:if="${error}" class="alert alert-danger mt-4" role="alert">
+                            <span th:text="${error}"></span>
+                        </div>
+
                         <div class="row">
                             <div class="col-12">
                                 <hr class="mt-5 mb-4 border-secondary-subtle">
-                                <p class="m-0 text-secondary text-center">Sudah punya akun? <a href="/auth/login" class="link-primary text-decoration-none">Login</a></p>
+                                <p class="m-0 text-secondary text-center">Belum punya akun? <a href="/auth/register" class="link-primary text-decoration-none">Sign in</a></p>
                             </div>
                         </div>
                     </div>
@@ -89,5 +78,6 @@
         </div>
     </div>
 </section>
+
 </body>
 </html>
