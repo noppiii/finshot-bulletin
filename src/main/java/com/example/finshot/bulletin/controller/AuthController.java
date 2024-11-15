@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -35,7 +35,11 @@ public class AuthController {
     }
 
     @PostMapping("/register/post")
-    public String register(@ModelAttribute("registerRequest") @Valid RegisterRequest registerRequest, BindingResult bindingResult, Model model) {
+    public String register(
+            @ModelAttribute("registerRequest") @Valid RegisterRequest registerRequest,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("registerRequest", registerRequest);
@@ -44,7 +48,7 @@ public class AuthController {
 
         try {
             CustomSuccessResponse<String> response = authService.register(registerRequest);
-            model.addAttribute("successMessage", response.getMessage());
+            redirectAttributes.addFlashAttribute("successMessage", response.getMessage());
             return "redirect:/auth/login";
         } catch (IOException e) {
             model.addAttribute("errorMessage", "Terjadi kesalahan saat registrasi. Silahkan ulangi kembali.");
@@ -53,17 +57,21 @@ public class AuthController {
     }
 
 
+
     @GetMapping("/login")
     public String showLoginForm(Model model) {
+
+        if (!model.containsAttribute("successMessage")) {
+            model.addAttribute("successMessage", "");
+        }
+
         model.addAttribute("loginRequest", new LoginRequest());
         return "login";
     }
 
+
     @PostMapping("/login/post")
-    public String login(@ModelAttribute("loginRequest") @Valid LoginRequest loginRequest,
-                        BindingResult bindingResult,
-                        Model model,
-                        HttpServletResponse response) {
+    public String login(@ModelAttribute("loginRequest") @Valid LoginRequest loginRequest, BindingResult bindingResult, Model model, HttpServletResponse response) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("loginRequest", loginRequest);

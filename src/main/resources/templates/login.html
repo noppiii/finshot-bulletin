@@ -20,14 +20,15 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="mb-5">
-                                    <div class="text-center mb-4">
-                                        <a href="#!">
-<!--                                            <img src="img/finshot.png" alt="Logo" width="175" height="57">-->
-                                        </a>
-                                    </div>
                                     <h2 class="h4 text-center">Login</h2>
                                     <h3 class="fs-6 fw-normal text-secondary text-center m-0">Silakan login dengan akun Anda</h3>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="text-success mb-4" th:if="${successMessage}">
+                            <div>
+                                * <span th:text="${successMessage}"></span><br>
                             </div>
                         </div>
 

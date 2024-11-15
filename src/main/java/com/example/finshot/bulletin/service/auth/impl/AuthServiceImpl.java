@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         userRepository.save(user);
-        return new CustomSuccessResponse<>("200", "Registration Successfully", null);
+        return new CustomSuccessResponse<>("200", "Berhasil melakukan registrasi", null);
     }
 
     @Override
