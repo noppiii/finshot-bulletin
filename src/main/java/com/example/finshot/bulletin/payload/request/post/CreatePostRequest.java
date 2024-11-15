@@ -3,11 +3,15 @@ package com.example.finshot.bulletin.payload.request.post;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Getter
+@Setter
+@ToString
 public class CreatePostRequest {
 
     @NotBlank(message = "Silakan masukkan judul.")
