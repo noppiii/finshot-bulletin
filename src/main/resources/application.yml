@@ -50,4 +50,4 @@ user:
 
 post:
   file:
-    store-directory: src/main/resources/static/store
+    store-directory: src/main/resources/static/store/post/

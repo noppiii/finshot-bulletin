@@ -19,7 +19,8 @@ public enum ErrorCode {
     NOT_FOUND_PROVIDER("Authentication provider not found. Please use a valid provider.", HttpStatus.BAD_REQUEST),
     NOT_FOUND_USER("User not found. Please check the credentials and try again.", HttpStatus.NOT_FOUND),
     EMAIL_NOT_FOUND("Email not found. Please check the credentials and try again.", HttpStatus.NOT_FOUND),
-    INVALID_CREDENTIALS("Invalid credetial", HttpStatus.UNAUTHORIZED);
+    INVALID_CREDENTIALS("Invalid credetial", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED("Unauthorized", HttpStatus.UNAUTHORIZED),;
 
     private final String message;
     private final HttpStatus status;

@@ -25,48 +25,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String authorizationHeader = request.getHeader("Authorization");
 
-        try {
-
-            String accessToken = JwtTokenUtils.extractBearerToken(request.getHeader("accessToken"));
-
-
-            if (!request.getRequestURI().equals("/auth/rotate") && accessToken != null) {
-
-                Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
-                jwtTokenProvider.checkLogin(authentication.getName());
-
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            try {
+                Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+                return;
             }
-
-            filterChain.doFilter(request, response);
-        }catch (CustomException e){
-            ErrorCode errorCode = e.getErrorCode();
-
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/json");
-            response.setStatus(errorCode.getStatus().value());
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setHeader("Access-Control-Allow-Methods","*");
-            response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Headers",
-                    "Origin, X-Requested-With, Content-Type, Accept, accessToken, refreshToken");
-            if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-                response.setStatus(HttpServletResponse.SC_OK);
-            }
-            else{
-                log.error(errorCode.getMessage());
-                response.getWriter().write(
-                        objectMapper.writeValueAsString(new ErrorResponse(errorCode.getMessage()))
-                );
-            }
-
         }
 
+        filterChain.doFilter(request, response);
     }
 
     @Override

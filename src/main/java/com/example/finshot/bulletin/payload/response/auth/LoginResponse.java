@@ -5,8 +5,10 @@ import com.example.finshot.bulletin.security.JwtToken;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class LoginResponse {
 
     private final UserInfo user;

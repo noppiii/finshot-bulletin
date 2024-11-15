@@ -7,6 +7,7 @@ import com.example.finshot.bulletin.payload.response.auth.LoginResponse;
 import com.example.finshot.bulletin.service.auth.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,7 @@ public class AuthController {
 
 
     @PostMapping("/login/post")
-    public String login(@ModelAttribute("loginRequest") @Valid LoginRequest loginRequest, BindingResult bindingResult, Model model, HttpServletResponse response) {
+    public String login(@ModelAttribute("loginRequest") @Valid LoginRequest loginRequest, BindingResult bindingResult, Model model, HttpSession session, HttpServletResponse response) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("loginRequest", loginRequest);
@@ -80,8 +81,10 @@ public class AuthController {
 
         try {
             LoginResponse loginResponse = authService.login(loginRequest);
+            session.setAttribute("Authorization", loginResponse.getAccessToken());
+            session.setAttribute("user", loginResponse.getUser());
             response.setHeader("Authorization", loginResponse.getTokenType() + " " + loginResponse.getAccessToken());
-            return "redirect:/dashboard";
+            return "redirect:/";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Invalid login credentials");
             return "login";

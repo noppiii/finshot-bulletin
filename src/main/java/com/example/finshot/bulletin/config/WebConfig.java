@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOriginPatterns("*")
                 .allowedMethods("*")
-                .allowedHeaders("*")
+                .allowedHeaders("Authorization", "accessToken", "Content-Type", "X-Requested-With")
                 .exposedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
