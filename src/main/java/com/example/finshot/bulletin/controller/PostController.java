@@ -2,6 +2,7 @@ package com.example.finshot.bulletin.controller;
 
 import com.example.finshot.bulletin.constant.ErrorCode;
 import com.example.finshot.bulletin.entity.Post;
+import com.example.finshot.bulletin.entity.PostFile;
 import com.example.finshot.bulletin.entity.Tag;
 import com.example.finshot.bulletin.entity.User;
 import com.example.finshot.bulletin.exception.CustomException;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -110,6 +112,7 @@ public class PostController {
     }
 
     @GetMapping("/post/{id}/edit")
+    @Transactional
     public String showEditForm(@PathVariable Long id, HttpSession session, Model model) {
         String accessToken = (String) session.getAttribute("Authorization");
         if (accessToken == null) {
@@ -120,36 +123,37 @@ public class PostController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
-
         Post post = postRepository.findByIdWithTags(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
+        post.getFiles().size();
         List<String> availableTags = tagRepository.findAll()
                 .stream()
                 .map(Tag::getName)
                 .collect(Collectors.toList());
-
-        // Initialize the UpdatePostRequest with the post data
+        String imageUrl = post.getFiles().stream()
+                .filter(file -> file.getUrl() != null && !file.getUrl().isEmpty())
+                .map(PostFile::getUrl)
+                .findFirst()
+                .orElse(null);
+        System.out.println("Image url: " + imageUrl);
         UpdatePostRequest updatePostRequest = new UpdatePostRequest();
+        updatePostRequest.setPostId(post.getId());
         updatePostRequest.setTitle(post.getTitle());
         updatePostRequest.setContent(post.getContent());
         updatePostRequest.setTags(post.getTags().stream()
-                .map(postTag -> postTag.getTag().getName()) // Extract tag names
+                .map(postTag -> postTag.getTag().getName())
                 .collect(Collectors.toList()));
-
         model.addAttribute("post", post);
         model.addAttribute("availableTags", availableTags);
         model.addAttribute("updatePostRequest", updatePostRequest);
+        model.addAttribute("imageUrl", imageUrl);
 
         return "post-update";
     }
 
 
-
-
     @PostMapping("/post/{postId}/update")
     public String updatePost(@PathVariable Long postId, @ModelAttribute("updatePostRequest") @Valid UpdatePostRequest updatePostRequest, BindingResult bindingResult, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-
         String accessToken = (String) session.getAttribute("Authorization");
         if (accessToken == null) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);

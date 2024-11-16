@@ -19,7 +19,7 @@
                 <h1 class="fw-bolder">Create Post</h1>
             </div>
             <div class="card-body">
-                <form action="/post/create/submit" method="POST" th:object="${updatePostRequest}" enctype="multipart/form-data">
+                <form th:action="@{/post/{id}/update(id=${updatePostRequest.postId})}" method="POST" th:object="${updatePostRequest}" enctype="multipart/form-data">
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
@@ -40,8 +40,12 @@
                             </div>
                         </div>
                     </div>
+                    <div th:if="${imageUrl != null}">
+                        <label class="form-label">Current Image</label><br>
+                        <img th:src="@{/store/post/{imageUrl}(imageUrl=${imageUrl})}" alt="Post Image" class="img-fluid" width="300"><br><br>
+                    </div>
                     <div class="mb-3">
-                        <label for="file" class="form-label">Upload File</label>
+                        <label for="file" class="form-label">Upload New File</label>
                         <input type="file" class="form-control" th:field="*{file}" id="file"
                                accept="image/png, image/jpeg, image/jpg, image/gif">
                     </div>

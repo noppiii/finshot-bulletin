@@ -13,6 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class UpdatePostRequest {
 
+    private Long postId;
+
     @NotBlank(message = "Silakan masukkan judul.")
     @Size(min = 5, max = 200, message = "Judulnya bisa minimal 5 karakter dan maksimal 30 karakter.")
     private String title;
