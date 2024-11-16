@@ -20,7 +20,9 @@ public enum ErrorCode {
     NOT_FOUND_USER("User not found. Please check the credentials and try again.", HttpStatus.NOT_FOUND),
     EMAIL_NOT_FOUND("Email not found. Please check the credentials and try again.", HttpStatus.NOT_FOUND),
     INVALID_CREDENTIALS("Invalid credetial", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED("Unauthorized", HttpStatus.UNAUTHORIZED),;
+    UNAUTHORIZED("Unauthorized", HttpStatus.UNAUTHORIZED),
+    POST_NOT_FOUND("Post not found", HttpStatus.NOT_FOUND),
+    FORBIDDEN("Forbidden", HttpStatus.FORBIDDEN),;
 
     private final String message;
     private final HttpStatus status;

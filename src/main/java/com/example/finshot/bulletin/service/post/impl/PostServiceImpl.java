@@ -6,6 +6,7 @@ import com.example.finshot.bulletin.exception.CustomException;
 import com.example.finshot.bulletin.payload.request.post.CreatePostRequest;
 import com.example.finshot.bulletin.payload.response.CustomSuccessResponse;
 import com.example.finshot.bulletin.payload.response.post.GetMyPostsResponse;
+import com.example.finshot.bulletin.payload.response.post.UpdatePostRequest;
 import com.example.finshot.bulletin.repository.*;
 import com.example.finshot.bulletin.service.post.PostFileService;
 import com.example.finshot.bulletin.service.post.PostService;
@@ -91,4 +92,71 @@ public class PostServiceImpl implements PostService {
 
         return new CustomSuccessResponse<>("200 OK", "Berhasil membuat post", null);
     }
+
+
+    @Override
+    public CustomSuccessResponse<String> updatePost(Long postId, UpdatePostRequest request, MultipartFile postFile, String email) {
+        // Validasi pengguna
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        // Pastikan pengguna yang mencoba memperbarui adalah penulis post
+        if (!post.getWriter().equals(user)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // Buat slug baru berdasarkan judul baru
+        String newSlug = SlugUtils.generateSlug(user.getNickname(), "post", request.getTitle());
+        int counter = 1;
+        String originalSlug = newSlug;
+        while (postRepository.existsBySlug(newSlug)) {
+            newSlug = originalSlug + "-" + counter;
+            counter++;
+        }
+
+        // Update file post (jika ada file baru yang diunggah)
+        if (postFile != null && !postFile.isEmpty()) {
+            // Hapus file lama jika ada
+            postFileRepository.deleteByPost(post);
+            String filePath = postFileService.upload(postFile, email);
+            PostFile newPostFile = PostFile.builder()
+                    .url(filePath)
+                    .post(post)
+                    .build();
+            postFileRepository.save(newPostFile);
+        }
+
+        // Update tags
+        postTagRepository.deleteAllByPost(post); // Hapus tag lama
+        List<Tag> existingTags = tagRepository.findByNameIn(request.getTags());
+
+        // Pisahkan tag baru dan lama
+        List<Tag> newTags = request.getTags().stream()
+                .filter(tagName -> existingTags.stream().noneMatch(tag -> tag.getName().equals(tagName)))
+                .map(tagName -> Tag.builder().name(tagName).build())
+                .collect(Collectors.toList());
+
+        // Simpan tag baru ke database
+        tagRepository.saveAll(newTags);
+        existingTags.addAll(newTags);
+
+        // Tambahkan hubungan antara post dan tag
+        existingTags.forEach(tag -> {
+            PostTag postTag = PostTag.builder()
+                    .post(post)
+                    .tag(tag)
+                    .build();
+            postTagRepository.save(postTag);
+        });
+
+        // Modifikasi data post
+        post.modify(request.getTitle(), request.getContent(), newSlug);
+
+        postRepository.save(post);
+
+        return new CustomSuccessResponse<>("200 OK", "Berhasil memperbaruhi post", null);
+    }
+
 }

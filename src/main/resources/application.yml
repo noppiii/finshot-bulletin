@@ -3,6 +3,8 @@ spring:
     active: dev
   thymeleaf:
     cache: false
+    prefix: classpath:/templates/
+    suffix: .html
   datasource:
     url: jdbc:postgresql://localhost:5432/bulletin
     username: postgres

@@ -2,7 +2,6 @@ package com.example.finshot.bulletin.payload.response.post;
 
 import com.example.finshot.bulletin.entity.Post;
 import com.example.finshot.bulletin.entity.PostFile;
-import com.example.finshot.bulletin.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -83,7 +82,6 @@ public class GetMyPostsResponse {
             if (imageUrl == null) {
                 return null;
             }
-
             return "/store/post/" + imageUrl;
         }
     }

@@ -1,6 +1,7 @@
 package com.example.finshot.bulletin.controller;
 
 import com.example.finshot.bulletin.constant.ErrorCode;
+import com.example.finshot.bulletin.entity.Post;
 import com.example.finshot.bulletin.entity.Tag;
 import com.example.finshot.bulletin.entity.User;
 import com.example.finshot.bulletin.exception.CustomException;
@@ -8,6 +9,8 @@ import com.example.finshot.bulletin.exception.InvalidException;
 import com.example.finshot.bulletin.payload.request.post.CreatePostRequest;
 import com.example.finshot.bulletin.payload.response.CustomSuccessResponse;
 import com.example.finshot.bulletin.payload.response.post.GetMyPostsResponse;
+import com.example.finshot.bulletin.payload.response.post.UpdatePostRequest;
+import com.example.finshot.bulletin.repository.PostRepository;
 import com.example.finshot.bulletin.repository.TagRepository;
 import com.example.finshot.bulletin.repository.UserRepository;
 import com.example.finshot.bulletin.security.JwtTokenProvider;
@@ -37,6 +40,7 @@ public class PostController {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final TagRepository tagRepository;
+    private final PostRepository postRepository;
 
     @GetMapping("/post")
     public String showPostIndex(HttpSession session, Model model) {
@@ -81,8 +85,6 @@ public class PostController {
         return "post-create";
     }
 
-
-
     @PostMapping("/post/create/submit")
     public String createPost(@ModelAttribute("createPostRequest") @Valid CreatePostRequest request, BindingResult bindingResult, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
 
@@ -107,5 +109,73 @@ public class PostController {
         return "redirect:/post";
     }
 
+    @GetMapping("/post/{id}/edit")
+    public String showEditForm(@PathVariable Long id, HttpSession session, Model model) {
+        String accessToken = (String) session.getAttribute("Authorization");
+        if (accessToken == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
+        Post post = postRepository.findByIdWithTags(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        List<String> availableTags = tagRepository.findAll()
+                .stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
+
+        // Initialize the UpdatePostRequest with the post data
+        UpdatePostRequest updatePostRequest = new UpdatePostRequest();
+        updatePostRequest.setTitle(post.getTitle());
+        updatePostRequest.setContent(post.getContent());
+        updatePostRequest.setTags(post.getTags().stream()
+                .map(postTag -> postTag.getTag().getName()) // Extract tag names
+                .collect(Collectors.toList()));
+
+        model.addAttribute("post", post);
+        model.addAttribute("availableTags", availableTags);
+        model.addAttribute("updatePostRequest", updatePostRequest);
+
+        return "post-update";
+    }
+
+
+
+
+    @PostMapping("/post/{postId}/update")
+    public String updatePost(@PathVariable Long postId, @ModelAttribute("updatePostRequest") @Valid UpdatePostRequest updatePostRequest, BindingResult bindingResult, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+
+        String accessToken = (String) session.getAttribute("Authorization");
+        if (accessToken == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
+        model.addAttribute("nameUser", user.getNickname());
+
+        if (bindingResult.hasErrors()) {
+            List<String> tags = tagRepository.findAll()
+                    .stream()
+                    .map(Tag::getName)
+                    .collect(Collectors.toList());
+            model.addAttribute("availableTags", tags);
+            return "post-update";
+        }
+
+        MultipartFile postFile = updatePostRequest.getFile();
+        CustomSuccessResponse<String> response = postService.updatePost(postId, updatePostRequest, postFile, email);
+        redirectAttributes.addFlashAttribute("successMessage", response.getMessage());
+
+        return "redirect:/post";
+    }
 
 }
