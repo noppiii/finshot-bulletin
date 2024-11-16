@@ -48,7 +48,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="tags" class="form-label">Tags</label>
-                        <select class="form-select" th:field="*{tags}" id="tags" multiple>
+                        <select class="form-select" id="tags" multiple>
                             <option th:each="tag : ${availableTags}" th:value="${tag}" th:text="${tag}"></option>
                         </select>
                         <div th:if="${#fields.hasErrors('tags')}" class="text-danger mt-2">

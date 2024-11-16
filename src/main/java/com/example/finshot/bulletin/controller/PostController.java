@@ -1,12 +1,14 @@
 package com.example.finshot.bulletin.controller;
 
 import com.example.finshot.bulletin.constant.ErrorCode;
+import com.example.finshot.bulletin.entity.Tag;
 import com.example.finshot.bulletin.entity.User;
 import com.example.finshot.bulletin.exception.CustomException;
 import com.example.finshot.bulletin.exception.InvalidException;
 import com.example.finshot.bulletin.payload.request.post.CreatePostRequest;
 import com.example.finshot.bulletin.payload.response.CustomSuccessResponse;
 import com.example.finshot.bulletin.payload.response.post.GetMyPostsResponse;
+import com.example.finshot.bulletin.repository.TagRepository;
 import com.example.finshot.bulletin.repository.UserRepository;
 import com.example.finshot.bulletin.security.JwtTokenProvider;
 import com.example.finshot.bulletin.service.post.PostService;
@@ -23,6 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -31,6 +36,7 @@ public class PostController {
     private final PostService postService;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TagRepository tagRepository;
 
     @GetMapping("/post")
     public String showPostIndex(HttpSession session, Model model) {
@@ -63,7 +69,12 @@ public class PostController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
-
+        List<String> tags = tagRepository.findAll()
+                .stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
+        System.out.println("List tags: " + tags);
+        model.addAttribute("availableTags", tags);
         model.addAttribute("nameUser", user.getNickname());
         model.addAttribute("createPostRequest", new CreatePostRequest());
 

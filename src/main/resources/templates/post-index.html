@@ -43,29 +43,33 @@
                         <th scope="col" style="width: 20%;">Content</th>
                         <th scope="col" class="text-center" style="width: 10%;">View</th>
                         <th scope="col" class="text-center" style="width: 10%;">Like</th>
+                        <th scope="col" style="width: 10%;">Tag</th>
                         <th scope="col" style="width: 15%;">Image</th>
-                        <th scope="col" style="width: 10%;">Created At</th>
                         <th scope="col" style="width: 10%;">Modified At</th>
                         <th scope="col" style="width: 15%;">Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row" class="text-center">1</th>
-                        <td>Mark</td>
-                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</td>
-                        <td class="text-center">100</td>
-                        <td class="text-center">50</td>
+                    <tr th:each="post, iterStat : ${posts}">
+                        <th scope="row" class="text-center" th:text="${iterStat.count}"></th>
+                        <td th:text="${post.title}"></td>
+                        <td th:text="${post.shortContent}"></td>
+                        <td class="text-center" th:text="${post.viewCount}"></td>
+                        <td class="text-center" th:text="${post.likeCount}"></td>
                         <td>
-                            <a href="#!">
-                                <img class="img-fluid" src="https://dummyimage.com/850x350/dee2e6/6c757d.jpg" alt="Image" style="max-width: 100px; height: auto;" />
-                            </a>
+                            <span class="badge bg-primary" th:each="tag : ${post.tags}" th:text="${tag}"></span>
                         </td>
-                        <td>2024-11-01</td>
-                        <td>2024-11-10</td>
                         <td>
-                            <a class="btn btn-warning btn-sm" href="#!">Edit</a>
-                            <a class="btn btn-danger btn-sm" href="#!">Delete</a>
+                            <a th:if="${post.imageUrl != null}" th:href="@{${post.imageUrl}}">
+                                <img class="img-fluid" th:src="@{${post.imageUrl}}" alt="Image"
+                                     style="max-width: 100px; height: auto;" />
+                            </a>
+                            <span th:if="${post.imageUrl == null}">No Image</span>
+                        </td>
+                        <td th:text="${post.modifiedAt}"></td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" th:href="@{/post/edit/{id}(id=${post.id})}">Edit</a>
+                            <a class="btn btn-danger btn-sm" th:href="@{/post/delete/{id}(id=${post.id})}">Delete</a>
                         </td>
                     </tr>
                     </tbody>
