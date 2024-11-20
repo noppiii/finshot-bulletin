@@ -16,7 +16,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-12">
             <div class="text-center my-5">
-                <h1 class="fw-bolder">Create Post</h1>
+                <h1 class="fw-bolder">Update Post</h1>
             </div>
             <div class="card-body">
                 <form th:action="@{/post/{id}/update(id=${updatePostRequest.postId})}" method="POST" th:object="${updatePostRequest}" enctype="multipart/form-data">

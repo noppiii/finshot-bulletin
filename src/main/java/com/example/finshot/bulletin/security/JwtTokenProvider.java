@@ -60,17 +60,6 @@ public class JwtTokenProvider {
         return new JwtToken(accessToken, refreshToken);
     }
 
-    public JwtToken refreshJwtToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(a -> a.getAuthority())
-                .collect(Collectors.joining(","));
-
-        JwtToken jwtToken = createJwtToken(authentication.getName(), authorities);
-
-        jwtTokenUtils.updateRefreshToken(authentication.getName(), jwtToken.getRefreshToken());
-        return jwtToken;
-    }
-
 
     private String createAccessToken(Claims claims, Date expiredDate) {
         return Jwts.builder()
@@ -110,21 +99,6 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    public Authentication getAuthenticationByRefreshToken(String refreshToken) {
-        Claims claims = validateRefreshToken(refreshToken);
-
-        if (claims.get("roles") == null) {
-            throw new InvalidException(ErrorCode.EMPTY_AUTHORITY);
-        }
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("roles").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-    }
-
     private Claims validateAccessToken(String accessToken) {
         try {
             return parseToken(accessToken);
@@ -136,27 +110,12 @@ public class JwtTokenProvider {
         }
     }
 
-    private Claims validateRefreshToken(String refreshToken) {
-        try {
-            return parseToken(refreshToken);
-        } catch (ExpiredJwtException e) {
-            throw new InvalidException(ErrorCode.EXPIRED_PERIOD_REFRESH_TOKEN);
-        } catch (final JwtException | IllegalArgumentException e) {
-            throw new InvalidException(ErrorCode.INVALID_REFRESH_TOKEN);
-        }
-    }
-
     private Claims parseToken(final String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public void checkLogin(String email) {
-        if (jwtTokenUtils.isLogin(email) == false)
-            throw new InvalidException(ErrorCode.LOGOUTED_TOKEN);
     }
 }
 

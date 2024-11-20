@@ -14,6 +14,7 @@ import com.example.finshot.bulletin.security.JwtToken;
 import com.example.finshot.bulletin.security.JwtTokenProvider;
 import com.example.finshot.bulletin.service.auth.AuthService;
 import com.example.finshot.bulletin.service.global.ImageService;
+import com.example.finshot.bulletin.util.JwtTokenUtils;
 import com.example.finshot.bulletin.util.MultipartFileUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final ImageService imageService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtils jwtTokenUtils;
 
     @Value("${user.profile.image.default-directory}")
     private String profileImgDefaultDirectory;
@@ -68,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         userRepository.save(user);
-        return new CustomSuccessResponse<>("200", "Berhasil melakukan registrasi", null);
+        return new CustomSuccessResponse<>("200", "Registration successfully", null);
     }
 
     @Override

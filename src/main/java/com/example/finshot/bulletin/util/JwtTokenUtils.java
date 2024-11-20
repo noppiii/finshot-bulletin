@@ -34,16 +34,7 @@ public class JwtTokenUtils {
         inMemoryCacheService.setData("Login_" + username, refreshToken, refreshExpirationTime, TimeUnit.SECONDS);
     }
 
-    public void updateRefreshToken(String username, String refreshToken) {
-        setRefreshToken(username, refreshToken);
-    }
-
     public void deleteRefreshToken(String username) {
         inMemoryCacheService.deleteData("Login_" + username);
-    }
-
-    public String getRefreshToken(String username) {
-        Object token = inMemoryCacheService.getData("Login_" + username);
-        return token != null ? token.toString() : null;
     }
 }

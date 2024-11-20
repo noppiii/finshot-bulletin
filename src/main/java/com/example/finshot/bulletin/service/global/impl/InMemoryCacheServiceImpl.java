@@ -36,14 +36,6 @@ public class InMemoryCacheServiceImpl implements InMemoryCacheService {
         cache.remove(key);
     }
 
-    @Override
-    public void increaseData(String key) {
-        CacheEntry entry = cache.get(key);
-        if (entry != null && entry.getValue() instanceof Long) {
-            entry.setValue((Long) entry.getValue() + 1);
-        }
-    }
-
     private static class CacheEntry {
         private Object value;
         private long expirationTime;

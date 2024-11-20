@@ -11,19 +11,19 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 public class RegisterRequest {
 
-    @NotBlank(message = "Email wajib diisi.")
-    @Email(message = "Masukkan email sesuai format yang benar.")
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Enter a valid email format.")
     private String email;
 
-    @NotBlank(message = "Kata sandi wajib diisi.")
-    @Size(min = 8, max = 20, message = "Kata sandi harus terdiri dari minimal 8 dan maksimal 20 karakter.")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).+$", message = "Kata sandi harus menggunakan huruf besar, huruf kecil, angka, dan karakter khusus.")
+    @NotBlank(message = "Password is required.")
+    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).+$", message = "Password must include uppercase, lowercase letters, numbers, and special characters.")
     private String password;
 
-    @NotBlank(message = "Nama panggilan wajib diisi.")
-    @Size(min = 2, max = 20, message = "Nama panggilan harus terdiri dari minimal 2 dan maksimal 20 karakter.")
+    @NotBlank(message = "Nickname is required.")
+    @Size(min = 2, max = 20, message = "Nickname must be between 2 and 20 characters.")
     private String nickname;
 
-    @NotNull(message = "Profile wajib diisi")
+    @NotNull(message = "Profile is required.")
     private MultipartFile profileImg;
 }

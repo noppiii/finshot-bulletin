@@ -14,12 +14,10 @@
 <header class="py-5 bg-light border-bottom mb-4">
     <div class="container">
         <div class="text-center my-5">
-            <h1 class="fw-bolder">Welcome to Blog Home!</h1>
+            <h1 class="fw-bolder">Bulletin!</h1>
             <p class="lead mb-0" th:if="${nameUser != null}">
-                Hello, <span th:text="${nameUser}"></span>!
-            </p>
-            <p class="lead mb-0" th:if="${nameUser == null}">
-                A Bootstrap 5 starter layout for your next blog homepage
+                Hello, <span th:text="${nameUser}"></span>!.
+                On this page you can manage all your posts
             </p>
         </div>
     </div>
@@ -58,13 +56,13 @@
                             <span class="badge bg-primary" th:each="tag : ${post.tags}" th:text="${tag}"></span>
                         </td>
                         <td>
-                            <a th:if="${post.imageUrl != null}" th:href="@{${post.imageUrl}}">
-                                <img class="img-fluid" th:src="@{${post.imageUrl}}" alt="Image"
-                                     style="max-width: 100px; height: auto;" />
+                            <a th:if="${post.imageUrl != null}" th:href="@{/store/post/{image}(image=${post.imageUrl})}">
+                                <img class="img-fluid" th:src="@{/store/post/{image}(image=${post.imageUrl})}"
+                                     alt="Image" style="max-width: 100px; height: auto;" />
                             </a>
                             <span th:if="${post.imageUrl == null}">No Image</span>
                         </td>
-                        <td th:text="${post.modifiedAt}"></td>
+                        <td th:text="${#temporals.format(post.modifiedAt, 'dd MMMM yyyy')}"></td>
                         <td>
                             <div class="d-flex">
                                 <a class="btn btn-warning btn-sm" th:href="@{/post/{id}/edit(id=${post.id})}">Edit</a>
@@ -79,14 +77,17 @@
                 </table>
             </div>
             <nav aria-label="Pagination">
+                <hr class="my-0" />
                 <ul class="pagination justify-content-center my-4">
-                    <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Newer</a></li>
-                    <li class="page-item active" aria-current="page"><a class="page-link" href="#!">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#!">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#!">3</a></li>
-                    <li class="page-item disabled"><a class="page-link" href="#!">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#!">15</a></li>
-                    <li class="page-item"><a class="page-link" href="#!">Older</a></li>
+                    <li class="page-item" th:classappend="${currentPage == 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" th:href="@{/posts(page=${currentPage - 1})}" tabindex="-1" aria-disabled="true">Prev</a>
+                    </li>
+                    <li class="page-item" th:each="page : ${#numbers.sequence(1, totalPages)}" th:if="${page > 0}" th:classappend="${page == currentPage + 1 ? 'active' : ''}">
+                        <a class="page-link" href="#" th:href="@{/posts(page=${page - 1})}" th:text="${page}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" th:href="@{/posts(page=${currentPage + 1})}">Next</a>
+                    </li>
                 </ul>
             </nav>
         </div>

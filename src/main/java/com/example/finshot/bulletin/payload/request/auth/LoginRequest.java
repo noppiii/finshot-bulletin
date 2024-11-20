@@ -13,12 +13,12 @@ import lombok.ToString;
 @ToString
 public class LoginRequest {
 
-    @NotBlank(message = "Email wajib diisi.")
-    @Email(message = "Masukkan email sesuai format yang benar.")
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Enter your email in the correct format.")
     private String email;
 
-    @NotBlank(message = "Kata sandi wajib diisi.")
-    @Size(min = 8, max = 20, message = "Kata sandi harus terdiri dari minimal 8 dan maksimal 20 karakter.")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).+$", message = "Kata sandi harus menggunakan huruf besar, huruf kecil, angka, dan karakter khusus.")
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 20, message = "The password must consist of a minimum of 8 and a maximum of 20 characters.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).+$", message = "Passwords must use uppercase letters, lowercase letters, numbers, and special characters.")
     private String password;
 }

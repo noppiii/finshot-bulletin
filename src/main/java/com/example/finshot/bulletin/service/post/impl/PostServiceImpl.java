@@ -5,13 +5,16 @@ import com.example.finshot.bulletin.entity.*;
 import com.example.finshot.bulletin.exception.CustomException;
 import com.example.finshot.bulletin.payload.request.post.CreatePostRequest;
 import com.example.finshot.bulletin.payload.response.CustomSuccessResponse;
-import com.example.finshot.bulletin.payload.response.post.GetMyPostsResponse;
+import com.example.finshot.bulletin.payload.response.post.GetPostsResponse;
+import com.example.finshot.bulletin.payload.response.post.ReadPostResponse;
 import com.example.finshot.bulletin.payload.response.post.UpdatePostRequest;
 import com.example.finshot.bulletin.repository.*;
 import com.example.finshot.bulletin.service.post.PostFileService;
 import com.example.finshot.bulletin.service.post.PostService;
 import com.example.finshot.bulletin.util.SlugUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,13 +35,13 @@ public class PostServiceImpl implements PostService {
     private final PostFileRepository postFileRepository;
 
     @Override
-    public CustomSuccessResponse<GetMyPostsResponse> getMyPosts(String email) {
+    public CustomSuccessResponse<GetPostsResponse> getMyPosts(String email, Pageable pageable) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+        Page<Post> posts = postRepository.findAllByWriterOrderByIdDesc(user, pageable);
+        GetPostsResponse getPostsResponse = GetPostsResponse.of(posts);
 
-        List<Post> posts = postRepository.findAllByWriterOrderByIdDesc(user);
-        GetMyPostsResponse getMyPostsResponse = GetMyPostsResponse.of(posts);
-        return new CustomSuccessResponse<>("200 OK", "Berhasil mendapatkan data posts anda", getMyPostsResponse);
+        return new CustomSuccessResponse<>("200", "Successfully get you posts", getPostsResponse);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class PostServiceImpl implements PostService {
             postTagRepository.save(postTag);
         });
 
-        return new CustomSuccessResponse<>("200 OK", "Berhasil membuat post", null);
+        return new CustomSuccessResponse<>("200", "Create post successfully", null);
     }
 
 
@@ -140,7 +143,7 @@ public class PostServiceImpl implements PostService {
         post.modify(request.getTitle(), request.getContent(), newSlug);
         postRepository.save(post);
 
-        return new CustomSuccessResponse<>("200 OK", "Berhasil memperbaruhi post", null);
+        return new CustomSuccessResponse<>("200", "Successfully update post", null);
     }
 
     @Override
@@ -163,6 +166,32 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
 
         return postTitle;
+    }
+
+    @Override
+    public CustomSuccessResponse<GetPostsResponse> getAllPosts(Pageable pageable) {
+        Page<Post> postsPage = postRepository.findAll(pageable);
+
+        GetPostsResponse responseContent = GetPostsResponse.of(postsPage);
+
+        return new CustomSuccessResponse<>(
+                "200",
+                "Successfully get all post",
+                responseContent
+        );
+    }
+
+    @Override
+    public CustomSuccessResponse<ReadPostResponse> readPost(String slug) {
+        Post post = postRepository.findPost(slug)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        List<PostTag> postTags = postTagRepository.findPostTags(post);
+
+        postRepository.increaseViewCount(post);
+
+        ReadPostResponse readPostResponse = ReadPostResponse.of(post, postTags);
+        return new CustomSuccessResponse<>("200", "Successfully get post", readPostResponse);
     }
 
 }

@@ -10,28 +10,38 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Getter
 @AllArgsConstructor
-public class GetMyPostsResponse {
+public class GetPostsResponse {
 
     private List<PostDto> posts;
+    private int totalPages;
+    private long totalElements;
+    private int currentPage;
 
-    public static GetMyPostsResponse of(List<Post> posts) {
-        List<PostDto> postDtos = posts.stream()
+    public static GetPostsResponse of(Page<Post> postPage) {
+        List<PostDto> postDtos = postPage.getContent().stream()
                 .map(PostDto::of)
                 .toList();
 
-        return new GetMyPostsResponse(postDtos);
+        return new GetPostsResponse(
+                postDtos,
+                postPage.getTotalPages(),
+                postPage.getTotalElements(),
+                postPage.getNumber()
+        );
     }
 
     @Getter
     @Builder
     public static class PostDto {
-
         private Long id;
         private String title;
+        private String slug;
         private String shortContent;
+        private String nickname;
         private long viewCount;
         private String imageUrl;
         private List<String> tags;
@@ -48,15 +58,14 @@ public class GetMyPostsResponse {
                     .map(postTag -> postTag.getTag().getName())
                     .toList();
 
-            String formattedDate = formatDate(post.getCreatedAt());
-            String imageUrl = getImageUrl(formattedDate, firstImageUrl);
-
             return builder()
                     .id(post.getId())
                     .title(post.getTitle())
+                    .slug(post.getSlug())
                     .shortContent(truncateContent(post.getContent()))
                     .viewCount(post.getViewCount())
-                    .imageUrl(imageUrl)
+                    .imageUrl(firstImageUrl)
+                    .nickname(post.getWriter().getNickname())
                     .tags(tagNames)
                     .createdAt(post.getCreatedAt())
                     .modifiedAt(post.getModifiedAt())
@@ -69,18 +78,6 @@ public class GetMyPostsResponse {
             }
             String[] words = content.split("\\s+");
             return String.join(" ", Arrays.copyOf(words, Math.min(words.length, 20))) + (words.length > 20 ? "..." : "");
-        }
-
-        private static String formatDate(LocalDateTime date) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd");
-            return date.format(formatter);
-        }
-
-        private static String getImageUrl(String formattedDate, String imageUrl) {
-            if (imageUrl == null) {
-                return null;
-            }
-            return "/store/post/" + imageUrl;
         }
     }
 }

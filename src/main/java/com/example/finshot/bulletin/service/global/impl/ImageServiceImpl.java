@@ -56,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
             String relativePath = "users/" + formatDate + "/" + fileName;
             return relativePath;
         } catch (IOException e) {
-            throw new RuntimeException("Gagal store gambar", e);
+            throw new RuntimeException("Failed store file", e);
         }
     }
 

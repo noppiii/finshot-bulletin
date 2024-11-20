@@ -6,10 +6,9 @@ import com.example.finshot.bulletin.entity.PostFile;
 import com.example.finshot.bulletin.entity.Tag;
 import com.example.finshot.bulletin.entity.User;
 import com.example.finshot.bulletin.exception.CustomException;
-import com.example.finshot.bulletin.exception.InvalidException;
 import com.example.finshot.bulletin.payload.request.post.CreatePostRequest;
 import com.example.finshot.bulletin.payload.response.CustomSuccessResponse;
-import com.example.finshot.bulletin.payload.response.post.GetMyPostsResponse;
+import com.example.finshot.bulletin.payload.response.post.GetPostsResponse;
 import com.example.finshot.bulletin.payload.response.post.UpdatePostRequest;
 import com.example.finshot.bulletin.repository.PostRepository;
 import com.example.finshot.bulletin.repository.TagRepository;
@@ -20,8 +19,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -45,7 +44,7 @@ public class PostController {
     private final PostRepository postRepository;
 
     @GetMapping("/post")
-    public String showPostIndex(HttpSession session, Model model) {
+    public String showPostIndex(HttpSession session, Pageable pageable, Model model) {
         String accessToken = (String) session.getAttribute("Authorization");
 
         if (accessToken == null) {
@@ -54,8 +53,11 @@ public class PostController {
 
         Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
         String email = authentication.getName();
-        CustomSuccessResponse<GetMyPostsResponse> response = postService.getMyPosts(email);
+        CustomSuccessResponse<GetPostsResponse> response = postService.getMyPosts(email, pageable);
         model.addAttribute("posts", response.getContent().getPosts());
+        model.addAttribute("currentPage", response.getContent().getCurrentPage());
+        model.addAttribute("totalPages", response.getContent().getTotalPages());
+        model.addAttribute("totalElements", response.getContent().getTotalElements());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
         model.addAttribute("nameUser", user.getNickname());
@@ -135,7 +137,6 @@ public class PostController {
                 .map(PostFile::getUrl)
                 .findFirst()
                 .orElse(null);
-        System.out.println("Image url: " + imageUrl);
         UpdatePostRequest updatePostRequest = new UpdatePostRequest();
         updatePostRequest.setPostId(post.getId());
         updatePostRequest.setTitle(post.getTitle());
@@ -147,6 +148,7 @@ public class PostController {
         model.addAttribute("availableTags", availableTags);
         model.addAttribute("updatePostRequest", updatePostRequest);
         model.addAttribute("imageUrl", imageUrl);
+        model.addAttribute("nameUser", user.getNickname());
 
         return "post-update";
     }

@@ -9,6 +9,4 @@ public interface InMemoryCacheService {
     Object getData(String key);
 
     void deleteData(String key);
-
-    void increaseData(String key);
 }

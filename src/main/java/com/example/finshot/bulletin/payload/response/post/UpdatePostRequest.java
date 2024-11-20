@@ -15,15 +15,15 @@ public class UpdatePostRequest {
 
     private Long postId;
 
-    @NotBlank(message = "Silakan masukkan judul.")
-    @Size(min = 5, max = 200, message = "Judulnya bisa minimal 5 karakter dan maksimal 30 karakter.")
+    @NotBlank(message = "Please enter a title.")
+    @Size(min = 5, max = 200, message = "The title must be between 5 and 30 characters.")
     private String title;
 
-    @Size(max = 3, message = "Anda dapat mendaftarkan hingga tiga tag.")
+    @Size(max = 3, message = "You can register up to three tags.")
     private List<String> tags;
 
-    @NotBlank(message = "Silakan masukkan content.")
-    @Size(max = 15000, message = "Text content terlalu besar")
+    @NotBlank(message = "Please enter content.")
+    @Size(max = 15000, message = "Text content is too large.")
     private String content;
 
     private MultipartFile file;

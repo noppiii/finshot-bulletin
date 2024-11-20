@@ -5,7 +5,6 @@ import com.example.finshot.bulletin.payload.request.auth.RegisterRequest;
 import com.example.finshot.bulletin.payload.response.CustomSuccessResponse;
 import com.example.finshot.bulletin.payload.response.auth.LoginResponse;
 import com.example.finshot.bulletin.service.auth.AuthService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -52,7 +51,7 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("successMessage", response.getMessage());
             return "redirect:/auth/login";
         } catch (IOException e) {
-            model.addAttribute("errorMessage", "Terjadi kesalahan saat registrasi. Silahkan ulangi kembali.");
+            model.addAttribute("errorMessage", "An error occurred during registration. Please repeat again.");
             return "register";
         }
     }
