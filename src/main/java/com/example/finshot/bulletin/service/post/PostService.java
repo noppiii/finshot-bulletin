@@ -9,4 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface PostService {
     CustomSuccessResponse<GetMyPostsResponse> getMyPosts(String email);
     CustomSuccessResponse<String> createPost(CreatePostRequest request, MultipartFile postFile, String email);
-    CustomSuccessResponse<String> updatePost(Long postId, UpdatePostRequest request, MultipartFile postFile, String email);}
+    CustomSuccessResponse<String> updatePost(Long postId, UpdatePostRequest request, MultipartFile postFile, String email);
+    String deletePost(Long postId, String email);
+}

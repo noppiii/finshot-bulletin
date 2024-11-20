@@ -33,7 +33,6 @@ public class GetMyPostsResponse {
         private String title;
         private String shortContent;
         private long viewCount;
-        private long likeCount;
         private String imageUrl;
         private List<String> tags;
         private LocalDateTime createdAt;
@@ -57,7 +56,6 @@ public class GetMyPostsResponse {
                     .title(post.getTitle())
                     .shortContent(truncateContent(post.getContent()))
                     .viewCount(post.getViewCount())
-                    .likeCount(post.getLikeCount())
                     .imageUrl(imageUrl)
                     .tags(tagNames)
                     .createdAt(post.getCreatedAt())

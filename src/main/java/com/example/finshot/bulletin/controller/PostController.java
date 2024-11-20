@@ -182,4 +182,23 @@ public class PostController {
         return "redirect:/post";
     }
 
+    @PostMapping("/post/{postId}/delete")
+    public String deletePost(@PathVariable Long postId, HttpSession session, RedirectAttributes redirectAttributes) {
+        String accessToken = (String) session.getAttribute("Authorization");
+        if (accessToken == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
+        String postTitle = postService.deletePost(postId, email);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Post titled '" + postTitle + "' deleted successfully.");
+
+        return "redirect:/post";
+    }
+
 }

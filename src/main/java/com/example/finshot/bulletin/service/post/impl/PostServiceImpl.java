@@ -96,18 +96,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public CustomSuccessResponse<String> updatePost(Long postId, UpdatePostRequest request, MultipartFile postFile, String email) {
-        // Validasi pengguna
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        // Pastikan pengguna yang mencoba memperbarui adalah penulis post
         if (!post.getWriter().equals(user)) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        // Buat slug baru berdasarkan judul baru
         String newSlug = SlugUtils.generateSlug(user.getNickname(), "post", request.getTitle());
         int counter = 1;
         String originalSlug = newSlug;
@@ -116,9 +113,7 @@ public class PostServiceImpl implements PostService {
             counter++;
         }
 
-        // Update file post (jika ada file baru yang diunggah)
         if (postFile != null && !postFile.isEmpty()) {
-            // Hapus file lama jika ada
             postFileRepository.deleteByPost(post);
             String filePath = postFileService.upload(postFile, email);
             PostFile newPostFile = PostFile.builder()
@@ -127,22 +122,14 @@ public class PostServiceImpl implements PostService {
                     .build();
             postFileRepository.save(newPostFile);
         }
-
-        // Update tags
-        postTagRepository.deleteAllByPost(post); // Hapus tag lama
+        postTagRepository.deleteAllByPost(post);
         List<Tag> existingTags = tagRepository.findByNameIn(request.getTags());
-
-        // Pisahkan tag baru dan lama
         List<Tag> newTags = request.getTags().stream()
                 .filter(tagName -> existingTags.stream().noneMatch(tag -> tag.getName().equals(tagName)))
                 .map(tagName -> Tag.builder().name(tagName).build())
                 .collect(Collectors.toList());
-
-        // Simpan tag baru ke database
         tagRepository.saveAll(newTags);
         existingTags.addAll(newTags);
-
-        // Tambahkan hubungan antara post dan tag
         existingTags.forEach(tag -> {
             PostTag postTag = PostTag.builder()
                     .post(post)
@@ -150,13 +137,33 @@ public class PostServiceImpl implements PostService {
                     .build();
             postTagRepository.save(postTag);
         });
-
-        // Modifikasi data post
         post.modify(request.getTitle(), request.getContent(), newSlug);
-
         postRepository.save(post);
 
         return new CustomSuccessResponse<>("200 OK", "Berhasil memperbaruhi post", null);
     }
 
+    @Override
+    public String deletePost(Long postId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getWriter().equals(user)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        postTagRepository.deleteAllByPost(post);
+
+        post.getFiles().forEach(postFile -> postFileService.deleteFile(postFile.getUrl()));
+        postFileRepository.deleteByPost(post);
+
+        String postTitle = post.getTitle();
+        postRepository.delete(post);
+
+        return postTitle;
+    }
+
 }
+

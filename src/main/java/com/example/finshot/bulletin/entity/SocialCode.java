@@ -7,7 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SocialCode {
 
-    GOOGLE("google"),
     NORMAL("normal");
 
     private final String type;

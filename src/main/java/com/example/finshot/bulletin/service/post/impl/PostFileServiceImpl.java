@@ -54,4 +54,22 @@ public class PostFileServiceImpl implements PostFileService {
             throw new RuntimeException("Failed to store file", e);
         }
     }
+
+    @Override
+    public void deleteFile(String filePath) {
+        try {
+            String fullFilePath = postFileStoreDirectory + "/" + filePath;
+            File file = new File(fullFilePath);
+
+            if (file.exists() && file.delete()) {
+                log.info("File deleted successfully: {}", fullFilePath);
+            } else {
+                log.warn("File not found or failed to delete: {}", fullFilePath);
+            }
+        } catch (Exception e) {
+            log.error("Error occurred while deleting file: {}", filePath, e);
+            throw new RuntimeException("Failed to delete file: " + filePath, e);
+        }
+    }
+
 }

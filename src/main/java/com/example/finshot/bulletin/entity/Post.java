@@ -33,8 +33,6 @@ public class Post extends BaseTimeEntity {
 
     private long viewCount;
 
-    private long likeCount;
-
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostFile> files = new ArrayList<>();
 
@@ -42,13 +40,12 @@ public class Post extends BaseTimeEntity {
     private List<PostTag> tags = new ArrayList<>();
 
     @Builder
-    private Post(User writer, String title, String slug, String content, long viewCount, long likeCount) {
+    private Post(User writer, String title, String slug, String content, long viewCount) {
         this.writer = writer;
         this.title = title;
         this.slug = slug;
         this.content = content;
         this.viewCount = viewCount;
-        this.likeCount = likeCount;
     }
 
     public void modify(String title, String content, String slug) {
